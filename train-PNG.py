@@ -126,6 +126,11 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
         render_pkg = render(viewpoint_cam, gaussians, pipe, bg_image)
         image, viewspace_point_tensor, visibility_filter, radii = render_pkg["render"], render_pkg["viewspace_points"], render_pkg["visibility_filter"], render_pkg["radii"]
+        # save the image 
+        plt.imsave(f"/home/mmarengo/workspace/3DGS-WITH-BACKGROUND/savingimages/background{iteration}.png", bg_image.detach().cpu().numpy())
+        plt.imsave(f"/home/mmarengo/workspace/3DGS-WITH-BACKGROUND/savingimages/rendered-image{iteration}.png", image.detach().cpu().numpy())
+
+
 
         # breakpoint()
 
