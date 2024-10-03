@@ -75,6 +75,37 @@ const float* __restrict__ bg_image,
 ```
 - Be aware to replace bg_color by bg_images in .h files if needed.
 - /!\ Please recompile the scripts every time a modification is brought as it is CUDA C++.
+- The other modifications are to be done in train.py
+- Include a function to load background image:
+```python
+def load_bg_image(bg_image_path, W, H):
+    image = Image.open(bg_image_path).resize((W, H))
+    bg_image = torch.tensor(np.array(image), dtype=torch.float32, device="cuda") / 255.0
+    return bg_image.permute(2, 0, 1)  # Change shape to (C, H, W)
+```
+- For each camera viewpoint, load the associated background image:
+```python
+# Pick a random Camera until the list is empty then repopulate it
+if not viewpoint_stack:
+    viewpoint_stack = scene.getTrainCameras().copy()
+viewpoint_cam = viewpoint_stack.pop(randint(0, len(viewpoint_stack) - 1))
+
+bg_image_path = "path_background_images/" + viewpoint_cam.image_name + ".jpg" # or .png
+bg_image = Image.open(bg_image_path).convert('RGB')
+bg_image = torch.from_numpy(np.array(bg_image)).float() / 255.0
+bg_image = torch.from_numpy(np.array(bg_image)).float().to('cuda').permute(2, 0, 1)
+```
+- In gaussian_renderer/__init__.py small modifications have also to be done by replacing bg_color by bg_image.
+- train-single.png is to be used when only the same image is in background, it is useful to debug the code for example.
+- train-multiple.py has to be used when doing the training with one background image for each viewpoint (very useful for real trainings and for driving scenes)
+- /!\ The background image should be of the exact same size than the rendered image.
+
+### Results
+- In the folder background-images, some background images that can be used to do the tests.
+- In the folder savingimages results are shown.
+- For example with a cat image and by initializing the gaussians randomly in a defined square, we indeed observe that the background image is well rendered along with the gaussians.
+![image_chat_background](https://github.com/user-attachments/assets/6cf477a5-efcb-4147-b009-c50ae7c05798)
+
 ----
 
 # 3D Gaussian Splatting for Real-Time Radiance Field Rendering
