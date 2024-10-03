@@ -1,4 +1,24 @@
-## This Script is to use 3DGS with background images 
+----
+----
+
+## Context 
+
+<b> Internship within VALEO.ai and INRIA - Astra Vision </b>
+<b> Student: Matteo MARENGO </b>
+<b> Supervised by: Dr. Alexandre BOULCH, Dr. Raoul DE CHARETTE, Pr. Renaud MARLET </b>
+
+----
+----
+
+## This Script is to use 3DGS with background images during the training
+
+### What is the objective
+- The goal of that repository is to integrate background images in the training of the 3DGS vanilla pipeline. 
+- This is the first step before doing a full differentiable pipeline that optimizes both at the same time the texture map of the map and the 3D Gaussians.
+
+
+----
+----
 
 # 3D Gaussian Splatting for Real-Time Radiance Field Rendering
 Bernhard Kerbl*, Georgios Kopanas*, Thomas Leimkühler, George Drettakis (* indicates equal contribution)<br>
