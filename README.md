@@ -106,6 +106,8 @@ bg_image = torch.from_numpy(np.array(bg_image)).float().to('cuda').permute(2, 0,
 - For example with a cat image and by initializing the gaussians randomly in a defined square, we indeed observe that the background image is well rendered along with the gaussians.
 ![image_chat_background](https://github.com/user-attachments/assets/6cf477a5-efcb-4147-b009-c50ae7c05798)
 
+### Troubleshooting
+- I have done some trainings with the background images from NuScenes but the results were hardly interpretable as at the stage it was designed, background images were not good enough. However to check that the right background image is associated with the right ground truth image is important !
 ----
 
 # 3D Gaussian Splatting for Real-Time Radiance Field Rendering
