@@ -60,35 +60,13 @@ def training(background_image_path, dataset, opt, pipe, testing_iterations, savi
         (model_params, first_iter) = torch.load(checkpoint)
         gaussians.restore(model_params, opt)
 
-    # # Pick a random Camera
-    # viewpoint_stack = None
-    # if not viewpoint_stack:
-    #     viewpoint_stack = scene.getTrainCameras().copy()
-    # viewpoint_cam = viewpoint_stack.pop(randint(0, len(viewpoint_stack) - 1))
-    # gt_image = viewpoint_cam.original_image.cuda()
-
-    # bg_image = load_bg_image(background_image_path, 122, 68)
-
-
-    # # Load background image
-    # bg_image = Image.open(background_image_path).convert('RGB')
-    # #  Convert to numpy array
-    # bg_image = np.array(bg_image) 
-    # # Resize to the same size as the training images (truck dataset is 122 x 68)
-    # bg_image = bg_image[:68,:122,:]
-    # # Convert to tensor and move to GPU
-    # bg_image = torch.tensor(bg_image, dtype=torch.float32, device="cuda").permute(2, 0, 1)
-    # # bg_image = torch.from_numpy(bg_image).float().to('cuda').permute(2, 0, 1)
-    # # Normalize
-    # bg_image = bg_image / 255.0
-    
+   
     bg_image = Image.open(background_image_path).convert('RGB')
     bg_image = torch.from_numpy(np.array(bg_image)).float() / 255.0
     # bg_image = bg_image.permute(2, 0, 1).unsqueeze(0).clone().cuda()  # Convert to tensor and move to GPU
     bg_image = torch.from_numpy(np.array(bg_image)).float().to('cuda').permute(2, 0, 1)
 
     # breakpoint()
-    ## --> At this point, bg_image is a tensor of shape (3, 68, 122) and is on the GPU
     ## --> bg_image is the background image that will be used to render the scene
 
     iter_start = torch.cuda.Event(enable_timing=True)

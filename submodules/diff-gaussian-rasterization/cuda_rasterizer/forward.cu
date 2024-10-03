@@ -364,7 +364,7 @@ renderCUDA(
 
 	// All threads that treat valid pixel write out their final
 	// rendering data to the frame and auxiliary buffers.
-  if (inside)
+  	if (inside)
     {
         final_T[pix_id] = T;
         n_contrib[pix_id] = last_contributor;

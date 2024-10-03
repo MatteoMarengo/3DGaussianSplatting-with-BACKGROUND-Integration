@@ -107,12 +107,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             viewpoint_stack = scene.getTrainCameras().copy()
         viewpoint_cam = viewpoint_stack.pop(randint(0, len(viewpoint_stack) - 1))
 
-        # bg_image_path = "/home/mmarengo/workspace/3DGS-Matteo-Exp/data-3DGS/NuScenes-Keyframes/background_images/" + viewpoint_cam.image_name + ".png"
-        # bg_image_path = "/home/mmarengo/workspace/3DGS-URBAN-SCENES-INTERNSHIP/8_BACKGROUND-IMAGES-CREATION/background_images_colmap/" + viewpoint_cam.image_name + ".jpg"
-        # bg_image_path = "/home/mmarengo/workspace/3DGS-URBAN-SCENES-INTERNSHIP/8_BACKGROUND-IMAGES-CREATION/BACKGROUND_WITH_GOOD_PARAMETERS/ALL_CAMERAS/" + viewpoint_cam.image_name + ".jpg"
-        bg_image_path = "/home/mmarengo/workspace/SYNTHETIC-NERF-NUSCENES/SYNTHETIC-NERF-NUSCENES-SCENE3-186/background_images/" + viewpoint_cam.image_name + ".jpg"
-        # breakpoint()
-        # print(f"The current image path that is being used is {bg_image_path}")
+        bg_image_path = "path_background_images/" + viewpoint_cam.image_name + ".jpg" # or .png
         bg_image = Image.open(bg_image_path).convert('RGB')
         bg_image = torch.from_numpy(np.array(bg_image)).float() / 255.0
         bg_image = torch.from_numpy(np.array(bg_image)).float().to('cuda').permute(2, 0, 1)
@@ -127,17 +122,8 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
         render_pkg = render(viewpoint_cam, gaussians, pipe, bg_image)
         image, viewspace_point_tensor, visibility_filter, radii = render_pkg["render"], render_pkg["viewspace_points"], render_pkg["visibility_filter"], render_pkg["radii"]
         # save the image 
-        plt.imsave(f"/home/mmarengo/workspace/3DGS-WITH-BACKGROUND/savingimages/background{iteration}.png", bg_image.detach().cpu().numpy())
-        plt.imsave(f"/home/mmarengo/workspace/3DGS-WITH-BACKGROUND/savingimages/rendered-image{iteration}.png", image.detach().cpu().numpy())
-
-
-
-        # breakpoint()
-
-        # print("image shape: ", image.shape)
-        # image_to_save = image.permute(1, 2, 0)
-        # print("image shape: ", image_to_save.shape)
-        # plt.imsave(f"background{iteration}.png", image_to_save.detach().cpu().numpy())
+        plt.imsave(f"background{iteration}.png", bg_image.detach().cpu().numpy())
+        plt.imsave(f"rendered-image{iteration}.png", image.detach().cpu().numpy())
 
         if iteration % 500 == 0:
             print(f"The current image path that is being used is {bg_image_path}")
