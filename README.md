@@ -1,13 +1,11 @@
 ----
-----
 
 ## Context 
 
-<b> Internship within VALEO.ai and INRIA - Astra Vision </b>
-<b> Student: Matteo MARENGO </b>
-<b> Supervised by: Dr. Alexandre BOULCH, Dr. Raoul DE CHARETTE, Pr. Renaud MARLET </b>
+- <b> Internship within VALEO.ai and INRIA - Astra Vision </b>
+- <b> Student: Matteo MARENGO </b>
+- <b> Supervised by: Dr. Alexandre BOULCH, Dr. Raoul DE CHARETTE, Pr. Renaud MARLET </b>
 
-----
 ----
 
 ## This Script is to use 3DGS with background images during the training
@@ -15,9 +13,39 @@
 ### What is the objective
 - The goal of that repository is to integrate background images in the training of the 3DGS vanilla pipeline. 
 - This is the first step before doing a full differentiable pipeline that optimizes both at the same time the texture map of the map and the 3D Gaussians.
+- On the figure below it is the first the pipeline.
 
+![pipeline-full-integration](https://github.com/user-attachments/assets/36768e12-68df-4aed-a70d-691328ab4cea)
 
-----
+### How to do it 
+- To achieve the result modifications have to be done in many scripts and particularly in the cuda rasterizer so that when doing the rendering the color of the background superimposes itself to the color of the 3D Gaussians.
+- In particular in submodules/diff-gaussian-rasterization/cuda_rasterizer
+- In original backward.cu we have in renderCUDA :
+```c
+// Account for fact that alpha also influences how much of
+// the background color is added if nothing left to blend
+float bg_dot_dpixel = 0;
+for (int i = 0; i < C; i++)
+    bg_dot_dpixel += bg_color[i] * dL_dpixel[i];
+dL_dalpha += (-T_final / (1.f - alpha)) * bg_dot_dpixel;
+```
+- The modification in backward.cu is now :
+```c
+// Account for fact that alpha also influences how much of
+// the background color is added if nothing left to blend
+float bg_dot_dpixel = 0;
+
+for (int i = 0; i < C; i++){
+    int bg_pix_id = i * H * W + pix_id;
+    bg_dot_dpixel += bg_image[bg_pix_id] * dL_dpixel[i];
+      }
+dL_dalpha += (-T_final / (1.f - alpha)) * bg_dot_dpixel;
+```
+- The modification that has been brought is that it takes into account the pixel id of the bg_image and not only the bg_color.
+- Do not forget to add bg_image as a replacement of bg_color in the function definition.
+```c
+const float* __restrict__ bg_image,
+```
 ----
 
 # 3D Gaussian Splatting for Real-Time Radiance Field Rendering
