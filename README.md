@@ -20,6 +20,33 @@
 ### How to do it 
 - To achieve the result modifications have to be done in many scripts and particularly in the cuda rasterizer so that when doing the rendering the color of the background superimposes itself to the color of the 3D Gaussians.
 - In particular in submodules/diff-gaussian-rasterization/cuda_rasterizer
+- In original forward.cu we have in renderCUDA :
+```c
+// All threads that treat valid pixel write out their final
+	// rendering data to the frame and auxiliary buffers.
+	if (inside)
+	{
+		final_T[pix_id] = T;
+		n_contrib[pix_id] = last_contributor;
+		for (int ch = 0; ch < CHANNELS; ch++)
+			out_color[ch * H * W + pix_id] = C[ch] + T * bg_color[ch];
+	}
+```
+- Whereas the modified script in forward.cu is now:
+```c
+// All threads that treat valid pixel write out their final
+// rendering data to the frame and auxiliary buffers.
+if (inside)
+{
+    final_T[pix_id] = T;
+    n_contrib[pix_id] = last_contributor;
+    for (int ch = 0; ch < CHANNELS; ch++)
+    {
+        int bg_pix_id = ch * H * W + pix_id;
+        out_color[bg_pix_id] = C[ch] + T * bg_image[bg_pix_id];
+    }
+}
+```
 - In original backward.cu we have in renderCUDA :
 ```c
 // Account for fact that alpha also influences how much of
@@ -42,10 +69,12 @@ for (int i = 0; i < C; i++){
 dL_dalpha += (-T_final / (1.f - alpha)) * bg_dot_dpixel;
 ```
 - The modification that has been brought is that it takes into account the pixel id of the bg_image and not only the bg_color.
-- Do not forget to add bg_image as a replacement of bg_color in the function definition.
+- Do not forget to add bg_image as a replacement of bg_color in the function definition / in BACKWARD::render and in renderCUDA<NUM_CHANNELS>, do the same with forward functions.
 ```c
 const float* __restrict__ bg_image,
 ```
+- Be aware to replace bg_color by bg_images in .h files if needed.
+- /!\ Please recompile the scripts every time a modification is brought as it is CUDA C++.
 ----
 
 # 3D Gaussian Splatting for Real-Time Radiance Field Rendering
